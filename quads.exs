@@ -28,7 +28,12 @@ defmodule Quads do
         color
     end
 
-    def generate_rectangles(_, _, 2, _, _, rectangles) do rectangles end
+    def same_color?(color1, color2) when color1 == color2 do 1 end
+    def same_color?(color1, color2) when color1 != color2 do 0 end
+
+    def generate_rectangles(_, _, 3, _, _, rectangles) do rectangles end
+    def generate_rectangles(_, _, _, _, 1, rectangles) do rectangles end
+
     def generate_rectangles(im, parent_quad, depth, color, color_times, rectangles) do
         IO.inspect depth
         [q1, q2, q3, q4] = Quads.get_quads(parent_quad)
@@ -38,10 +43,10 @@ defmodule Quads do
         c3 = get_quad_color(im, q3)
         c4 = get_quad_color(im, q4)
 
-        generate_rectangles(im, q1, depth + 1, c1, color_times, [{q1, c1}]) ++ 
-            generate_rectangles(im, q2, depth + 1, c2, color_times, [{q2, c2}]) ++
-            generate_rectangles(im, q3, depth + 1, c3, color_times, [{q3, c3}]) ++
-            generate_rectangles(im, q4, depth + 1, 4, color_times, [{q4, c4}])
+        generate_rectangles(im, q1, depth + 1, c1, color_times + same_color?(c1, color), [{q1, c1}]) ++ 
+            generate_rectangles(im, q2, depth + 1, c2, color_times + same_color?(c2, color), [{q2, c2}]) ++
+            generate_rectangles(im, q3, depth + 1, c3, color_times + same_color?(c3, color), [{q3, c3}]) ++
+            generate_rectangles(im, q4, depth + 1, 4, color_times + same_color?(c4, color), [{q4, c4}])
     end
 
     def generate_rectangles(im) do
@@ -64,4 +69,4 @@ quaded_image =
             Mogrify.rectangle(quaded_image, x1, y1, x2, y2, color)
     end)
 
-draw(quaded_image, "formas6.png")
+draw(quaded_image, "formas.png")
