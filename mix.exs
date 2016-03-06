@@ -19,7 +19,7 @@ defmodule Elixirquads.Mixfile do
 
   defp deps do
     [
-      {:mogrify, "~> 0.2"}
+      {:mogrify, git: "https://github.com/marcospri/mogrify.git"}
     ]
   end
 end
