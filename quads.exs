@@ -49,7 +49,6 @@ defmodule Quads do
     def gen_rectangles(_, _, _, _, color_rep, rectangles) when color_rep == 0 do rectangles end
 
     def gen_rectangles(im, parent_quad, depth, color, color_times, _) do
-        IO.inspect depth
         [q1, q2, q3, q4] = Quads.get_quads(parent_quad)
 
         c1 = get_quad_color(im, q1)
@@ -57,8 +56,7 @@ defmodule Quads do
         c3 = get_quad_color(im, q3)
         c4 = get_quad_color(im, q4)
         
-        IO.inspect {"colors", :calendar.local_time()}
-
+        # There has to be a better way to do this, it's a bit ugly
         gen_rectangles(im, q1, depth - 1, c1, color_times + same_color?(c1, color), [{q1, c1}]) ++ 
             gen_rectangles(im, q2, depth - 1, c2, color_times + same_color?(c2, color), [{q2, c2}]) ++
             gen_rectangles(im, q3, depth - 1, c3, color_times + same_color?(c3, color), [{q3, c3}]) ++
