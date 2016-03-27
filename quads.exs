@@ -26,10 +26,11 @@ defmodule Quads do
 
     def get_size(image) do
         info = image |> verbose 
-        w = Map.get(info, :width)
-        h =  Map.get(info, :height)
+
+        w = info.width |> String.to_integer
+        h = info.height |> String.to_integer
         
-        {String.to_integer(w), String.to_integer(h)}
+        {w, h}
     end
 
     def crop(image, {w,h, x, y}) do
@@ -49,18 +50,14 @@ defmodule Quads do
     def gen_rectangles(_, _, _, _, color_rep, rectangles) when color_rep == 0 do rectangles end
 
     def gen_rectangles(im, parent_quad, depth, color, color_times, _) do
-        [q1, q2, q3, q4] = Quads.get_quads(parent_quad)
+        quads = Quads.get_quads(parent_quad)
 
-        c1 = get_quad_color(im, q1)
-        c2 = get_quad_color(im, q2)
-        c3 = get_quad_color(im, q3)
-        c4 = get_quad_color(im, q4)
-        
-        # There has to be a better way to do this, it's a bit ugly
-        gen_rectangles(im, q1, depth - 1, c1, color_times + same_color?(c1, color), [{q1, c1}]) ++ 
-            gen_rectangles(im, q2, depth - 1, c2, color_times + same_color?(c2, color), [{q2, c2}]) ++
-            gen_rectangles(im, q3, depth - 1, c3, color_times + same_color?(c3, color), [{q3, c3}]) ++
-            gen_rectangles(im, q4, depth - 1, 4, color_times + same_color?(c4, color), [{q4, c4}])
+        quads
+            |> Enum.map(fn(q) -> get_quad_color(im, q) end)
+            |> Enum.zip(quads)
+            |> Enum.map(fn({c, q}) -> 
+              im |> gen_rectangles(q, depth - 1, c, color_times + same_color?(c, color), [{q, c}])
+        end)
     end
 
     def gen_rectangles(im, m_depth, m_color) do
@@ -75,5 +72,5 @@ max_color_rep = 2
 im = open("owl.jpg") 
 im_size = Quads.get_size(im)
 
-rectangles = Quads.gen_rectangles(im, max_depth, max_color_rep) 
+rectangles = Quads.gen_rectangles(im, max_depth, max_color_rep) |> List.flatten
 Quads.draw_rectangles(im_size, rectangles)
